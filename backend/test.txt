@@ -1,0 +1,59 @@
+// models/user.model.js
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema({
+  fullName: String,
+  email: { type: String, unique: true },
+  username: { type: String, unique: true },
+  password: String
+}, { timestamps: true });
+
+export const User = mongoose.model("User", userSchema);
+
+// controllers/user.controller.js
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { User } from "../models/user.model.js";
+
+const createUser = asyncHandler(async (req, res) => {
+  const { fullName, email, username, password } = req.body;
+  const user = await User.create({ fullName, email, username, password });
+  res.status(201).json(new ApiResponse(201, user, "User created successfully"));
+});
+
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find();
+  res.status(200).json(new ApiResponse(200, users, "All users fetched"));
+});
+
+const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) throw new ApiError(404, "User not found");
+  res.status(200).json(new ApiResponse(200, user, "User fetched"));
+});
+
+const updateUser = asyncHandler(async (req, res) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!user) throw new ApiError(404, "User not found");
+  res.status(200).json(new ApiResponse(200, user, "User updated"));
+});
+
+const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) throw new ApiError(404, "User not found");
+  res.status(200).json(new ApiResponse(200, null, "User deleted"));
+});
+
+export { createUser, getAllUsers, getUserById, updateUser, deleteUser };
+
+// routes/user.routes.js
+import { Router } from "express";
+import { createUser, getAllUsers, getUserById, updateUser, deleteUser } from "../controllers/user.controller.js";
+
+const router = Router();
+
+router.route("/").post(createUser).get(getAllUsers);
+router.route("/:id").get(getUserById).patch(updateUser).delete(deleteUser);
+
+export default router;

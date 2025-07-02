@@ -1,0 +1,6 @@
+{
+  "indent_size": 2,
+  "brace_style": "expand",
+  "end_with_newline": true,
+  "preserve_newlines": true
+}
