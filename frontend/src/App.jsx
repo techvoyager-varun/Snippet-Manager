@@ -1,25 +1,26 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { login, logout } from './store/authSlice';
-import { getCurrentUser } from './api/authApi';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { login, logout } from "./store/authSlice";
+import { getCurrentUser } from "./api/authApi";
 
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import Dashboard from './pages/Dashboard';
-import CreateSnippetPage from './pages/CreateSnippetPage';
-import EditSnippetPage from './pages/EditSnippetPage';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import PublicRoute from './components/auth/PublicRoute';
-import Applayout from './components/layout/Applayout';
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import Dashboard from "./pages/Dashboard";
+import CreateSnippetPage from "./pages/CreateSnippetPage";
+import EditSnippetPage from "./pages/EditSnippetPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import PublicRoute from "./components/auth/PublicRoute";
+import Applayout from "./components/layout/Applayout";
+import SnippetDetailsPage from "./pages/SnippetDetailsPage";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Applayout />,
     children: [
       {
-        path: 'dashboard',
+        path: "dashboard",
         element: (
           <ProtectedRoute>
             <Dashboard />
@@ -27,7 +28,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'login',
+        path: "login",
         element: (
           <PublicRoute>
             <Login />
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'register',
+        path: "register",
         element: (
           <PublicRoute>
             <Register />
@@ -43,7 +44,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'create-snippet',
+        path: "create-snippet",
         element: (
           <ProtectedRoute>
             <CreateSnippetPage />
@@ -51,15 +52,23 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'edit-snippet/:id',
+        path: "edit-snippet/:id",
         element: (
           <ProtectedRoute>
             <EditSnippetPage />
           </ProtectedRoute>
-        )
+        ),
+      },
+      {
+        path: "snippets/:id",
+        element: (
+          <ProtectedRoute>
+            <SnippetDetailsPage />
+          </ProtectedRoute>
+        ),
       }
-    ]
-  }
+    ],
+  },
 ]);
 
 const App = () => {
@@ -67,8 +76,8 @@ const App = () => {
 
   useEffect(() => {
     const restoreAuth = async () => {
-      const token = localStorage.getItem('accessToken');
-      const user = JSON.parse(localStorage.getItem('user'));
+      const token = localStorage.getItem("accessToken");
+      const user = JSON.parse(localStorage.getItem("user"));
 
       if (!token || !user) {
         dispatch(logout());
@@ -76,19 +85,19 @@ const App = () => {
       }
 
       try {
-        
         const res = await getCurrentUser();
-        dispatch(login({ 
-          user: res.data.user || user, 
-          accessToken: token 
-        }));
-        
-        
-        localStorage.setItem('user', JSON.stringify(res.data.user));
+        dispatch(
+          login({
+            user: res.data.user || user,
+            accessToken: token,
+          })
+        );
+
+        localStorage.setItem("user", JSON.stringify(res.data.user));
       } catch (err) {
-        console.error('Session restoration failed:', err);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
+        console.error("Session restoration failed:", err);
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
         dispatch(logout());
       }
     };
