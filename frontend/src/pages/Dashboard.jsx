@@ -16,11 +16,12 @@ const Dashboard = () => {
   const snippets = useSelector(state => state.snippets.snippets);
   const user = useSelector(state => state.auth.user);
 
+  // Fetch snippets once on mount
   useEffect(() => {
     const fetchSnippets = async () => {
       try {
         setLoading(true);
-        const res = await getSnippets({ title: search });
+        const res = await getSnippets({});
         dispatch(getSnippetsSuccess(res.data?.data || []));
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load snippets');
@@ -29,10 +30,8 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-
-    const timer = setTimeout(fetchSnippets, 300);
-    return () => clearTimeout(timer);
-  }, [dispatch, search]);
+    fetchSnippets();
+  }, [dispatch]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Delete this snippet?')) {
@@ -46,22 +45,16 @@ const Dashboard = () => {
     }
   };
 
+  // Filtered results client-side
   const filtered = snippets.filter(snippet => {
+    const searchMatch = snippet.title.toLowerCase().includes(search.toLowerCase());
     const langMatch = language === 'all' || snippet.language === language;
     const visMatch =
       visibility === 'all' ||
       (visibility === 'public' && snippet.isPublic) ||
       (visibility === 'private' && !snippet.isPublic);
-    return langMatch && visMatch;
+    return searchMatch && langMatch && visMatch;
   });
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64 text-gray-500">
-        Loading snippets...
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -124,9 +117,13 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* List */}
+      {/* Snippets */}
       <div className="bg-white p-4 rounded-lg shadow-md">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center h-32 text-gray-500">
+            Loading snippets...
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             {snippets.length === 0
               ? "You don't have any snippets yet. Create one!"
@@ -136,8 +133,6 @@ const Dashboard = () => {
           <SnippetList snippets={filtered} onDelete={handleDelete} showActions />
         )}
       </div>
-
-        
     </div>
   );
 };
