@@ -4,8 +4,8 @@ import { useDispatch } from "react-redux";
 import { login, logout } from "./store/authSlice";
 import { getCurrentUser } from "./api/authApi";
 
-import Login from "./components/auth/Login";
-import Register from "./components/auth/Register";
+import Login from "./components/auth/login";
+import Register from "./components/auth/register";
 import Dashboard from "./pages/Dashboard";
 import CreateSnippetPage from "./pages/CreateSnippetPage";
 import EditSnippetPage from "./pages/EditSnippetPage";
