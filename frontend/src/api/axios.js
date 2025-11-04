@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 
+const baseURL = import.meta?.env?.VITE_API_URL || "https://snippet-manager-wpb2.onrender.com/api/v1";
+
 const axiosInstance = axios.create({
-  baseURL: "https://snippet-manager-wpb2.onrender.com/api/v1",
+  baseURL,
   withCredentials: true,
 });
 

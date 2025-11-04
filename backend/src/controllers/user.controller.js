@@ -31,10 +31,39 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, 'User creation failed');
   }
 
-  // Send response
+  // Generate tokens for auto-login after registration
+  const { accessToken, refreshToken } = await generateTokens(user._id);
+
+  // Save refresh token to user
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  // Set cookie options
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: "None"
+  };
+
+  // Send response with tokens
   return res
     .status(201)
-    .json(new ApiResponse(201, createdUser, 'User registered successfully'));
+    .cookie('accessToken', accessToken, cookieOptions)
+    .cookie('refreshToken', refreshToken, cookieOptions)
+    .json(
+      new ApiResponse(
+        201,
+        {
+          user: {
+            _id: createdUser._id,
+            username: createdUser.username,
+            email: createdUser.email,
+          },
+          accessToken,
+        },
+        'User registered successfully'
+      )
+    );
 });
 
 // Login User
