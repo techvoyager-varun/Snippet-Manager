@@ -21,7 +21,7 @@ const Dashboard = () => {
     const fetchSnippets = async () => {
       try {
         setLoading(true);
-        const res = await getSnippets({});
+  const res = await getSnippets("");
         dispatch(getSnippetsSuccess(res.data?.data || []));
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load snippets');

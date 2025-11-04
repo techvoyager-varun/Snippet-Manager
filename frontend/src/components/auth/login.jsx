@@ -17,7 +17,9 @@ const Login = () => {
     setError('');
     try {
       const response = await loginUser({ email, password });
-      dispatch(login(response.data));
+      // Our API wraps payload as { statusCode, data: { user, accessToken }, message }
+      const payload = response?.data?.data || response?.data;
+      dispatch(login(payload));
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');

@@ -24,7 +24,9 @@ const Register = () => {
 
     try {
       const response = await registerUser({ username, email, password });
-      dispatch(login(response.data)); // Log in after registration
+      // Our API wraps payload as { statusCode, data: { user, accessToken }, message }
+      const payload = response?.data?.data || response?.data;
+      dispatch(login(payload)); // Log in after registration
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
